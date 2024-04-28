@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natasha Syntax Parsing</title>
+</head>
+<body>
+    <h1>Natasha Syntax Parsing Demo</h1>
+    <form id="textForm">
+        <label for="textInput">Введите текст:</label><br>
+        <textarea id="textInput" name="text" rows="4" cols="50"></textarea><br>
+        <button type="submit">Анализировать</button>
+    </form>
+    <div id="result"></div>
+
+    <script> document.getElementById("textForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+    var text = formData.get('text');
+    parseText(text);
+});
+
+function parseText(text) {
+    fetch('/parse', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({text: text})
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayResult(data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+function displayResult(result) {
+    var resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "<h2>Синтаксический анализ:</h2>";
+    var html = "<ul>";
+    result.forEach(function(token) {
+        html += "<li>" + token.text + " (" + token.lemma + ") - " + token.pos + "</li>";
+    });
+    html += "</ul>";
+    resultDiv.innerHTML += html;
+}
+</script>
+</body>
+</html>
